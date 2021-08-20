@@ -36,15 +36,19 @@ public class BookControllerTest {
         Mockito.when(this.bookRepository.save(Mockito.any())).thenReturn(Mono.just(getBook()));
 
         //Act
-        this.client.post()
+       this.client.post()
                 .uri("/books/")
                 .header("X-API-VERSION", "1")
                 .header("X-CORRELATION-ID", "123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue( getBookRequest(true)))
+                .body(BodyInserters.fromValue(getBookRequest(true)))
                 .exchange()
-                .expectStatus().isCreated(); // Assert
+                .expectStatus().isCreated() // Assert
+                .expectBody()
+                .jsonPath("$[0]name").isEqualTo("Wings of Fire");
+
+
 
     }
 
@@ -60,7 +64,6 @@ public class BookControllerTest {
                 .body(BodyInserters.fromValue( getBookRequest(false)))
                 .exchange()
                 .expectStatus().isBadRequest(); // Assert
-
     }
 
     @Test
@@ -72,9 +75,11 @@ public class BookControllerTest {
                 .header("X-CORRELATION-ID", "123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue( getBookRequest(false)))
+                .body(BodyInserters.fromValue( getBookRequestWithEmptyBookModel(false)))
                 .exchange()
-                .expectStatus().is4xxClientError(); // Assert
+                .expectStatus().is4xxClientError() // Assert
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("1001");
 
     }
 
