@@ -42,6 +42,9 @@ public class BookRepositoryTest {
                     assertThat(actual.getName()).isEqualTo("Wings of Fire");
                     assertThat(actual.getAuthor()).isEqualTo("APJ Abdul Kalam");
                 }).verifyComplete();
+
+        //Teardown
+        bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
     }
 
 
