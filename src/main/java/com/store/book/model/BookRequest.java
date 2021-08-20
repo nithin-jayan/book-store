@@ -18,14 +18,16 @@ import static com.store.book.common.BookConstants.BOOK_LIST_EMPTY_MSG;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookRequest {
-    @Valid
-    @NotNull
-    private List<Book> books;
 
-    Flux<Book> validateBookRequest() {
+    @NotNull
+    @Valid
+    private List<BookModel> books;
+
+
+    public Flux<BookModel> validateBookRequest() {
         if(CollectionUtils.isEmpty(books)){
             throw new ApiException(BOOK_LIST_EMPTY_CODE, BOOK_LIST_EMPTY_MSG);
         }
-        return Flux.fromIterable(this.books);
+        return Flux.fromIterable(this.getBooks());
     }
 }
