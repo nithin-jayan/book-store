@@ -22,6 +22,12 @@ public class ApiExceptionAdvice {
 		return e.getError();
 	}
 
+	@ResponseStatus(value = HttpStatus.NOT_FOUND)
+	@ExceptionHandler(BookNotFoundException.class)
+	public Error bookNotFoundException(BookNotFoundException e) {
+		return e.getError();
+	}
+
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(WebExchangeBindException.class)
 	public Map<String, String> handleValidationExceptions(

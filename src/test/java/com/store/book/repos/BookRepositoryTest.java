@@ -10,6 +10,7 @@ import org.springframework.data.r2dbc.dialect.H2Dialect;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -42,6 +43,25 @@ public class BookRepositoryTest {
                     assertThat(actual.getName()).isEqualTo("Wings of Fire");
                     assertThat(actual.getAuthor()).isEqualTo("APJ Abdul Kalam");
                 }).verifyComplete();
+
+        //Teardown
+        bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
+    }
+
+    @Test
+    void findByIdTest(){
+        //Arrange
+        Book book = getBook();
+
+        //Act
+        bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
+        Mono<Book> bookMono = bookRepository.save(book).flatMap(b -> bookRepository.findById(b.getId()));
+
+        //Assert
+        bookMono.as(StepVerifier::create).assertNext(actual -> {
+            assertThat(actual.getName()).isEqualTo("Wings of Fire");
+            assertThat(actual.getAuthor()).isEqualTo("APJ Abdul Kalam");
+        }).verifyComplete();
 
         //Teardown
         bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
