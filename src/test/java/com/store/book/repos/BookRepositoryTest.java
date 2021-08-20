@@ -1,6 +1,6 @@
 package com.store.book.repos;
 
-import com.store.book.entity.Book;
+import com.store.book.model.Book;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

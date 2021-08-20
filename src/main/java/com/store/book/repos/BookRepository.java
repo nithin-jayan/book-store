@@ -1,6 +1,6 @@
 package com.store.book.repos;
 
-import com.store.book.entity.Book;
+import com.store.book.model.Book;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;

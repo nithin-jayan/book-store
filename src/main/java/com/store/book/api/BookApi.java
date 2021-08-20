@@ -1,6 +1,7 @@
 package com.store.book.api;
 
-import com.store.book.entity.Book;
+import com.store.book.model.Book;
+import com.store.book.model.BookRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,7 +29,7 @@ public interface BookApi {
     default Flux<Book> addBooks(
             @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
             @Parameter(description = "correlation Id of the request" ) @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
-            @RequestBody List<Book> books){
+            @RequestBody BookRequest bookRequest){
         return  Flux.empty();
     }
 }
