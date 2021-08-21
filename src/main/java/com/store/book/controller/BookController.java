@@ -2,12 +2,12 @@ package com.store.book.controller;
 
 import com.store.book.api.BookApi;
 import com.store.book.exception.BookNotFoundException;
-import com.store.book.model.Book;
-import com.store.book.model.BookModel;
-import com.store.book.model.BookRequest;
+import com.store.book.model.*;
 import com.store.book.model.transformer.ModelTransformer;
 import com.store.book.repos.BookRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/books")
@@ -53,6 +54,15 @@ public class BookController implements BookApi {
         return this.bookRepository.findById(id).switchIfEmpty(Mono.error(new BookNotFoundException(id)));
     }
 
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, headers = "X-API-VERSION=1")
+    @Override
+    public Flux<Book> getAllBook(
+            @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
+            @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId){
+        log.info("Get all book request with correlation id {} ", correlationId);
+        return this.bookRepository.findAll();
+    }
+
 
     @DeleteMapping(value = "/{id}", headers = "X-API-VERSION=1")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -78,6 +88,26 @@ public class BookController implements BookApi {
                 .flatMap(e->Mono.just(book))
                 .map(b->ModelTransformer.getBook(b,id))
                 .flatMap(this.bookRepository::save);
+    }
+
+
+    @PostMapping(value = "/checkout", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Override
+    public ResponseEntity<Mono<CheckoutResponse>> checkOut(
+            @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
+            @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
+            @Valid @RequestBody CheckoutRequest checkoutRequest){
+        CheckoutResponse response = new CheckoutResponse();
+        Mono<BigDecimal> totalPriceMono = checkoutRequest.validateCheckOutRequest()
+                .map(c -> c.getBookIds())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(c -> this.bookRepository.findById(c.getBookId()))
+                .map(Book::getPrice)
+                .reduce(new BigDecimal("0.0"), (a1, a2) -> a1.add(a2));
+        totalPriceMono.subscribe(t->response.setTotalPrice(t));
+        response.setBookIds(checkoutRequest.getBookIds());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Mono.just(response));
     }
 
 

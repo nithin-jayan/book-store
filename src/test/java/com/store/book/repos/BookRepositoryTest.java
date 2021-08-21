@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -67,6 +68,25 @@ public class BookRepositoryTest {
         bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
     }
 
+    @Test
+    void findByIdsTest(){
+        //Arrange
+        Book book1 = getBook();
+        Book book2 =  getBook2();
+
+
+        //Act
+        bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
+        bookRepository.save(book1).concatWith(bookRepository.save(book2)).as(StepVerifier::create).expectNextCount(2).verifyComplete();
+        Flux<Book> bookFlux = bookRepository.findByIds(Arrays.asList(1l,2l));
+
+        //Assert
+        bookFlux.as(StepVerifier::create).expectNextCount(2).verifyComplete();
+
+        //Teardown
+        bookRepository.deleteAll().as(StepVerifier::create).verifyComplete();
+    }
+
 
     private Book getBook() {
         Book book = new Book();
@@ -76,6 +96,17 @@ public class BookRepositoryTest {
         book.setType("AUTOBIOGRAPHY");
         book.setPrice(new BigDecimal("350.50"));
         book.setIsbn("9788173711466");
+        return book;
+    }
+
+    private Book getBook2() {
+        Book book = new Book();
+        book.setName("An Autobiography");
+        book.setDescription("Nehru's autobiography");
+        book.setAuthor("Jawaharlal Nehru");
+        book.setType("AUTOBIOGRAPHY");
+        book.setPrice(new BigDecimal("250.50"));
+        book.setIsbn("9788173711467");
         return book;
     }
 

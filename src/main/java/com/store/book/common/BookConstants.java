@@ -11,4 +11,7 @@ public class BookConstants {
     public static final String BOOK_NO_FOUND_CODE = "1002";
     public static final String BOOK_NO_FOUND_MSG = "Book not found";
 
+    public static final String CHECKOUT_EMPTY_CODE = "1003";
+    public static final String CHECKOUT_EMPTY_MSG = "Empty Book list";
+
 }

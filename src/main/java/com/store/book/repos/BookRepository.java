@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Repository
 public interface BookRepository extends ReactiveCrudRepository<Book, Long> {
 
@@ -15,4 +17,7 @@ public interface BookRepository extends ReactiveCrudRepository<Book, Long> {
 
     @Query("SELECT * FROM book WHERE id = :id")
     Mono<Book> findById(long id);
+
+    @Query("SELECT * FROM book WHERE id in (:ids)")
+    Flux<Book> findByIds(List<Long> ids);
 }

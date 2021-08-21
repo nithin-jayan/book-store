@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -96,6 +97,24 @@ public class BookControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.type").isEqualTo("AUTOBIOGRAPHY");
+
+    }
+
+    @Test
+    void getAllBooksSuccessTest() {
+        //Arrange
+        Mockito.when(this.bookRepository.findAll()).thenReturn(Flux.just(getBook()));
+
+        //Act
+        this.client.get()
+                .uri("/books/")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].type").isEqualTo("AUTOBIOGRAPHY");
 
     }
 
