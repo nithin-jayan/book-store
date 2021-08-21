@@ -69,8 +69,8 @@ public class BookController implements BookApi {
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
     public Mono<Book> updateBook(
-            @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
-            @Parameter(description = "correlation Id of the request" ) @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
+            @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
+            @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
             @PathVariable("id") long id, @Valid @RequestBody @NotNull BookModel book){
         log.info("Get book request with correlation id {}, book id {}, and content {}", correlationId, id, book);
         return this.bookRepository.findById(id)
