@@ -127,6 +127,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Java Container Image Builder from Google-->
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
@@ -137,10 +138,6 @@
 					</from>
 					<to>
 						<image>${docker.repo}/book-store-service</image>
-						<tags>
-							<tag>${project.version}</tag>
-							<tag>${project.version}.${git.lastcommit}</tag>
-						</tags>
 					</to>
 				</configuration>
 			</plugin>
