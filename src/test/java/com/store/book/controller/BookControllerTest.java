@@ -115,6 +115,75 @@ public class BookControllerTest {
 
     }
 
+    @Test
+    void deleteBooksSuccessTest() {
+        //Arrange
+        Mockito.when(this.bookRepository.deleteById(Mockito.anyLong())).thenReturn(Mono.empty());
+
+        //Act
+        this.client.delete()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNoContent();
+
+    }
+
+    @Test
+    void updateBooksSuccessTest() {
+        //Arrange
+        Mockito.when(this.bookRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(getBook()));
+        Mockito.when(this.bookRepository.save(Mockito.any())).thenReturn(Mono.just(getBook()));
+
+        //Act
+        this.client.put()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(getBookModel(true)))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.type").isEqualTo("AUTOBIOGRAPHY");
+
+    }
+
+    @Test
+    void updateBook_sWhenId_returnEmpty_Book_Fail_Test() {
+        //Arrange
+        Mockito.when(this.bookRepository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
+        Mockito.when(this.bookRepository.save(Mockito.any())).thenReturn(Mono.just(getBook()));
+
+        //Act
+        this.client.put()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(getBookModel(true)))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void  updateBook_When_Invalid_Isbn_Test() {
+        //Act
+        this.client.put()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue( getBookModel(false)))
+                .exchange()
+                .expectStatus().isBadRequest(); // Assert
+    }
+
     private BookRequest getBookRequest(boolean success) {
         BookRequest bookRequest = new BookRequest();
         List<BookModel> books = new ArrayList<>();

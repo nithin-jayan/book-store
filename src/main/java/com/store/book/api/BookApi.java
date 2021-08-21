@@ -1,6 +1,7 @@
 package com.store.book.api;
 
 import com.store.book.model.Book;
+import com.store.book.model.BookModel;
 import com.store.book.model.BookRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +39,29 @@ public interface BookApi {
             @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
             @Parameter(description = "correlation Id of the request" ) @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
             @PathVariable("id") long id){
+        return Mono.empty();
+    }
+
+    @Operation(summary = "Delete Book", operationId = "deleteBook", description = "Delete Book By Id" , tags={ "Book"})
+    @ApiResponse(responseCode = "204", description = "No Content")
+    @DeleteMapping(value = "/{id}")
+    default Mono<Void> deleteBook(
+            @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
+            @Parameter(description = "correlation Id of the request" ) @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
+            @PathVariable("id") long id){
+        return Mono.empty();
+    }
+
+    @Operation(summary = "Update Book", operationId = "updateBook", description = "Update Book By Id" , tags={ "Book"})
+    @ApiResponse(responseCode = "200", description = "Ok")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
+    @ApiResponse(responseCode = "404", description = "Not Found")
+    @ApiResponse(responseCode = "409", description = "Conflict")
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    default Mono<Book> updateBook(
+            @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,
+            @Parameter(description = "correlation Id of the request" ) @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
+            @PathVariable("id") long id, @Valid @RequestBody @NotNull BookModel book){
         return Mono.empty();
     }
 }
