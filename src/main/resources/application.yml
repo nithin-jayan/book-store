@@ -33,6 +33,11 @@ promocodes:
       discount: 10
       expiredate: 25/08/2021
 
+    - promocode: OFFERFIC20
+      bookType: TECHNOLOGY
+      discount: 20
+      expiredate: 20/08/2021
+
     - promocode: OFFERFIC10
       bookType: SCIENCE
       discount: 0
