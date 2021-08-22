@@ -1,6 +1,7 @@
 package com.store.book.controller;
 
 import com.store.book.api.BookApi;
+import com.store.book.common.PromoCodeConfig;
 import com.store.book.exception.BookNotFoundException;
 import com.store.book.model.*;
 import com.store.book.model.transformer.ModelTransformer;
@@ -26,6 +27,8 @@ import java.math.BigDecimal;
 public class BookController implements BookApi {
 
     private final BookRepository bookRepository;
+
+    private final PromoCodeConfig promoCodeConfig;
 
     @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, headers = "X-API-VERSION=1")
     @Override
