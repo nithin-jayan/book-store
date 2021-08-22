@@ -1,6 +1,7 @@
 package com.store.book.controller;
 
 import com.store.book.api.BookApi;
+import com.store.book.common.Promo;
 import com.store.book.common.PromoCodeConfig;
 import com.store.book.exception.BookNotFoundException;
 import com.store.book.model.*;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,6 +21,10 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/books")
@@ -104,10 +110,22 @@ public class BookController implements BookApi {
                 .map(c -> c.getBookIds())
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(c -> this.bookRepository.findById(c.getBookId()))
-                .map(Book::getPrice)
+                .map(getBookPriceWithDiscount(checkoutRequest))
                 .reduce(new BigDecimal("0.0"), (a1, a2) -> a1.add(a2))
                 .map(t -> getCheckoutResponse(checkoutRequest, t));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private Function<Book, BigDecimal> getBookPriceWithDiscount(CheckoutRequest checkoutRequest) {
+        return book -> {
+            String userPromoCode = Optional.ofNullable(checkoutRequest.getPromoCode()).filter(StringUtils::hasText).orElseGet(() -> "");
+            Stream<Promo> promoStream = Optional.ofNullable(promoCodeConfig.getPromos()).map(Collection::stream).orElseGet(Stream::empty);
+            Optional<String> discount = promoStream.filter(p -> p.getPromoCode().equals(userPromoCode) && p.getBookType().equals(book.getType()))
+                    .map(Promo::getDiscount).findFirst();
+            return discount.map(d -> book.getPrice()
+                    .subtract((new BigDecimal(d).multiply(book.getPrice()))
+                            .divide(new BigDecimal("100.0")))).orElseGet(() -> book.getPrice());
+        };
     }
 
     private CheckoutResponse getCheckoutResponse(CheckoutRequest checkoutRequest, BigDecimal t) {
