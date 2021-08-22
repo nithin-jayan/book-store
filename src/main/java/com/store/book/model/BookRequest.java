@@ -28,6 +28,7 @@ public class BookRequest {
         if(CollectionUtils.isEmpty(books)){
             throw new ApiException(BOOK_LIST_EMPTY_CODE, BOOK_LIST_EMPTY_MSG);
         }
+        books.stream().forEach(BookModel::validateBookModel);
         return Flux.fromIterable(this.getBooks());
     }
 }

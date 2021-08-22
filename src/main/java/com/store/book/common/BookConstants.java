@@ -14,4 +14,7 @@ public class BookConstants {
     public static final String CHECKOUT_EMPTY_CODE = "1003";
     public static final String CHECKOUT_EMPTY_MSG = "Empty Book list";
 
+    public static final String BOOK_TYPE_INVALID_CODE = "1004";
+    public static final String BOOK_TYPE_INVALID_MSG = "Book type not valid";
+
 }

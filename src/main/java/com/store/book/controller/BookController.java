@@ -84,7 +84,7 @@ public class BookController implements BookApi {
         log.info("Get book request with correlation id {}, book id {}, and content {}", correlationId, id, book);
         return this.bookRepository.findById(id)
                 .switchIfEmpty(Mono.error(new BookNotFoundException(id)))
-                .flatMap(e->Mono.just(book))
+                .flatMap(e->Mono.just(book.validateBookModel()))
                 .map(b->ModelTransformer.getBook(b,id))
                 .flatMap(this.bookRepository::save);
     }
