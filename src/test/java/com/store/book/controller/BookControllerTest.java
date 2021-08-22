@@ -137,6 +137,7 @@ public class BookControllerTest {
     @Test
     void deleteBooksSuccessTest() {
         //Arrange
+        Mockito.when(this.bookRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(getBook()));
         Mockito.when(this.bookRepository.deleteById(Mockito.anyLong())).thenReturn(Mono.empty());
 
         //Act
@@ -147,6 +148,23 @@ public class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isNoContent();
+
+    }
+
+    @Test
+    void deleteBooksNotFoundTest() {
+        //Arrange
+        Mockito.when(this.bookRepository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
+        Mockito.when(this.bookRepository.deleteById(Mockito.anyLong())).thenReturn(Mono.empty());
+
+        //Act
+        this.client.get()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
 
     }
 

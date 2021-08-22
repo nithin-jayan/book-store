@@ -51,6 +51,7 @@ public interface BookApi {
 
     @Operation(summary = "Delete Book", operationId = "deleteBook", description = "Delete Book By Id" , tags={ "Book"})
     @ApiResponse(responseCode = "204", description = "No Content")
+    @ApiResponse(responseCode = "404", description = "Not Found")
     @DeleteMapping(value = "/{id}")
     default Mono<Void> deleteBook(
             @Parameter(description = "api version to be passed in the request" ) @RequestHeader (value = "X-API-VERSION") @Nullable String apiVersion,

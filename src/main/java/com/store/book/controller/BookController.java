@@ -5,9 +5,6 @@ import com.store.book.exception.BookNotFoundException;
 import com.store.book.model.*;
 import com.store.book.model.transformer.ModelTransformer;
 import com.store.book.repos.BookRepository;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -72,7 +69,9 @@ public class BookController implements BookApi {
             @RequestHeader (value = "X-CORRELATION-ID") @NotNull String correlationId,
             @PathVariable("id") long id){
         log.info("Delete book request with correlation id {} and book id {}", correlationId, id);
-        return this.bookRepository.deleteById(id);
+        return this.bookRepository.findById(id)
+                .switchIfEmpty(Mono.error(new BookNotFoundException(id)))
+                .flatMap(b->this.bookRepository.deleteById(id));
     }
 
 
