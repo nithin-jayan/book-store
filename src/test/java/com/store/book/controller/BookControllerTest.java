@@ -52,6 +52,26 @@ public class BookControllerTest {
     }
 
     @Test
+    void addBooks_When_Invalid_BookType_Test() {
+        //Arrange
+        BookRequest bookRequest = getBookRequest(true);
+        List<BookModel> books = bookRequest.getBooks();
+        BookModel bookModel = books.get(0);
+        bookModel.setType("MATHS");
+
+        //Act
+        this.client.post()
+                .uri("/books/")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(bookRequest))
+                .exchange()
+                .expectStatus().is4xxClientError(); // Assert
+    }
+
+    @Test
     void addBooks_When_Invalid_Isbn_Test() {
         //Act
         this.client.post()
@@ -219,6 +239,22 @@ public class BookControllerTest {
                 .body(BodyInserters.fromValue( getBookModel(false)))
                 .exchange()
                 .expectStatus().isBadRequest(); // Assert
+    }
+
+    @Test
+    void  updateBook_When_Invalid_BookType_Test() {
+        BookModel bookModel = getBookModel(true);
+        bookModel.setType("MATHS");
+        //Act
+        this.client.put()
+                .uri("/books/1")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue( getBookModel(false)))
+                .exchange()
+                .expectStatus().is4xxClientError(); // Assert
     }
 
     private BookRequest getBookRequest(boolean success) {
