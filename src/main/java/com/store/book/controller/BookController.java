@@ -147,7 +147,6 @@ public class BookController implements BookApi {
         CheckoutResponse resp = new CheckoutResponse();
         resp.setBookIds(checkoutRequest.getBookIds());
         resp.setTotalPrice(t);
-        resp.setTotalPrice(t);
         return resp;
     }
 
