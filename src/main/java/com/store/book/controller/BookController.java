@@ -21,7 +21,10 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -116,11 +119,12 @@ public class BookController implements BookApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     private Function<Book, BigDecimal> getBookPriceWithDiscount(CheckoutRequest checkoutRequest) {
         return book -> {
             String userPromoCode = Optional.ofNullable(checkoutRequest.getPromoCode()).filter(StringUtils::hasText).orElseGet(() -> "");
             Stream<Promo> promoStream = Optional.ofNullable(promoCodeConfig.getPromos()).map(Collection::stream).orElseGet(Stream::empty);
-            Optional<String> discount = promoStream.filter(p -> p.getPromoCode().equals(userPromoCode) && p.getBookType().equals(book.getType()))
+            Optional<String> discount = promoStream.filter(p -> checkDiscountEligible(book, userPromoCode, p))
                     .map(Promo::getDiscount).findFirst();
             return discount.map(d -> book.getPrice()
                     .subtract((new BigDecimal(d).multiply(book.getPrice()))
@@ -128,10 +132,20 @@ public class BookController implements BookApi {
         };
     }
 
+    private boolean checkDiscountEligible(Book book, String userPromoCode, Promo p) {
+        try {
+            return p.getPromoCode().equals(userPromoCode)
+                    && p.getBookType().equals(book.getType()) &&
+                    new SimpleDateFormat("dd/MM/yyyy").parse(p.getExpireDate()).after(new Date());
+        } catch (ParseException e) {
+            log.error("Date parsing {}",e);
+        }
+        return false;
+    }
+
     private CheckoutResponse getCheckoutResponse(CheckoutRequest checkoutRequest, BigDecimal t) {
         CheckoutResponse resp = new CheckoutResponse();
         resp.setBookIds(checkoutRequest.getBookIds());
-        resp.setTotalPrice(t);
         resp.setTotalPrice(t);
         return resp;
     }

@@ -1,9 +1,7 @@
 package com.store.book.controller;
 
 
-import com.store.book.model.Book;
-import com.store.book.model.BookModel;
-import com.store.book.model.BookRequest;
+import com.store.book.model.*;
 import com.store.book.repos.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -258,6 +256,24 @@ public class BookControllerTest {
                 .expectStatus().is4xxClientError(); // Assert
     }
 
+    @Test
+    void checkoutBooksSuccessTest() {
+        //Arrange
+        Mockito.when(this.bookRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(getBookTech()));
+
+        //Act
+        this.client.post()
+                .uri("/books/checkout")
+                .header("X-API-VERSION", "1")
+                .header("X-CORRELATION-ID", "123")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(getCheckoutRequest()))
+                .exchange()
+                .expectStatus().is5xxServerError();
+
+    }
+
     private BookRequest getBookRequest(boolean success) {
         BookRequest bookRequest = new BookRequest();
         List<BookModel> books = new ArrayList<>();
@@ -293,5 +309,29 @@ public class BookControllerTest {
         book.setPrice(new BigDecimal("350.50"));
         book.setIsbn("9788173711466");
         return book;
+    }
+
+
+    private Book getBookTech() {
+        Book book = new Book();
+        book.setId(1l);
+        book.setName("No Rules Rules");
+        book.setDescription("Netflix and the Culture of Reinvention");
+        book.setAuthor("Reed Hastings, Erin Meyer");
+        book.setType("TECHNOLOGY");
+        book.setPrice(new BigDecimal("1550.00"));
+        book.setIsbn("ISBN-13: 979-0-596-52068-3");
+        return book;
+    }
+
+    private CheckoutRequest getCheckoutRequest() {
+        CheckoutRequest checkoutReq = new CheckoutRequest();
+        List<Checkout> bookIds = new ArrayList<>();
+        Checkout checkout = new Checkout();
+        checkout.setBookId(1l);
+        bookIds.add(checkout);
+        checkoutReq.setBookIds(bookIds);
+        checkoutReq.setPromoCode("OFFERFIC10");
+        return checkoutReq;
     }
 }
